@@ -11,9 +11,9 @@ def test_crs(ruleset, test, logchecker_obj):
     runner = testrunner.TestRunner()
     for stage in test.stages:
         runner.run_stage(stage, logchecker_obj)
-        
+
 class FooLogChecker(logchecker.LogChecker):
-    
+
     def reverse_readline(self, filename):
         with open(filename) as f:
             f.seek(0, os.SEEK_END)
@@ -28,7 +28,7 @@ class FooLogChecker(logchecker.LogChecker):
                 else:
                     line += next_char
                 position -= 1
-            yield line[::-1]    
+            yield line[::-1]
 
     def get_logs(self):
         log_location = config.log_location_linux
@@ -40,9 +40,13 @@ class FooLogChecker(logchecker.LogChecker):
             # Extract dates from each line
             match = re.match(pattern,lline)
             if match:
-                log_date = match.group(1)
+                matched_log_date = match.group(1)
+                # format doesn't contain microsecond
+                if not (re.search("\d{2}\.\d{6}$", matched_log_date)):
+                    # append microsecond value of self.start to log_date...
+                    matched_log_date += (".%s" % self.start.strftime("%f"))
                 # Convert our date
-                log_date = datetime.datetime.strptime(log_date, log_date_format)
+                log_date = datetime.datetime.strptime(matched_log_date, log_date_format)
                 ftw_start = self.start
                 ftw_end = self.end
                 # If we have a log date in range
