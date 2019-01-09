@@ -42,7 +42,7 @@ class FooLogChecker(logchecker.LogChecker):
             if match:
                 matched_log_date = match.group(1)
                 # format doesn't contain microsecond
-                if not (re.search("\d{2}\.\d{6}$", matched_log_date)):
+                if log_date_format[-2:] == "%f" and not (re.search("\d{2}\.\d{6}$", matched_log_date)):
                     # append microsecond value of self.start to log_date...
                     matched_log_date += (".%s" % self.start.strftime("%f"))
                 # Convert our date
